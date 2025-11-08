@@ -57,7 +57,8 @@ Implementación tipo **Super Loop (bare-metal, event-triggered)** con tareas per
 
 ## Diagrama en Bloques  
 
-<img width="1247" height="828" alt="embebidos" src="https://github.com/user-attachments/assets/06f18192-fed8-472a-acca-b3b4f3162c45" />
+<img width="1243" height="828" alt="embebidos" src="https://github.com/user-attachments/assets/35658773-ff54-48d2-b060-35d2d7419d01" />
+
 
 
 
