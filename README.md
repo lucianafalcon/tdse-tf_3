@@ -59,33 +59,39 @@ Implementación tipo **Super Loop (bare-metal, event-triggered)** con tareas per
 
 <img width="1243" height="828" alt="embebidos" src="https://github.com/user-attachments/assets/35658773-ff54-48d2-b060-35d2d7419d01" />
 
-| Elemento           | Definición |
-|-------------------|------------|
-| **Disparador**     | El usuario contrae el músculo mientras el sistema está adquiriendo la señal. |
-| **Precondiciones** | El sistema está encendido. Los electrodos están correctamente colocados. El módulo EMG V3 entrega señal al microcontrolador. El display OLED está operativo. |
-| **Flujo principal** | El ADC del STM32 toma muestras periódicas de la señal EMG. El sistema filtra y procesa la señal digitalmente. Se calcula el nivel de activación muscular. El valor procesado se muestra en tiempo real en el display OLED. Si el nivel supera el umbral configurado, se activa el LED o buzzer. |
-| **Flujos alternativos** | a. Ruido excesivo: se muestra advertencia o se ignora la medición. <br> b. Señal fuera de rango: el sistema solicita recalibración. <br> c. Interrupción manual: el usuario presiona el botón para detener la adquisición. |
+---
 
-<p align="center"><b>Caso de Uso 1 – Detección de Contracción Muscular</b></p>
+## Consumo y factor de carga
 
-
-| Elemento           | Definición |
-|-------------------|------------|
-| **Disparador**     | Un dispositivo móvil o PC se conecta al módulo Bluetooth del sistema. |
-| **Precondiciones** | Bluetooth HM-10 encendido y emparejado. Sistema en modo transmisión. |
-| **Flujo principal** | El sistema inicia el envío continuo de datos EMG procesados. La PC o dispositivo móvil recibe y grafica los datos. La transmisión continúa mientras haya conexión. |
-| **Flujos alternativos** | a. Pérdida de conexión: el sistema pausa la transmisión y espera reconexión. <br> b. Exceso de datos: el sistema reduce la frecuencia de muestreo temporalmente. |
-
-<p align="center"><b>Caso de Uso 2 – Envío de Datos por Bluetooth</b></p>
+| Escenario              | Periféricos activos                      | Descripción de la prueba                                                              | Consumo (mA) |
+|------------------------|-------------------------------------------|--------------------------------------------------------------------------------------|--------------|
+| **Baseline**           | Ninguno                                   | Microcontrolador ejecutando loop mínimo, sin periféricos habilitados.                |    12.9      |
+| **ADC activo**         | ADC1                                      | Conversión continua de señal EMG proveniente del AD8232.                             |    14.1      |
+| **I2C activo**         | I2C1 (OLED + EEPROM)                      | Comunicación con OLED y acceso a memoria I2C, refresco de pantalla.                  |    13.4      |
+| **UART activo**        | USART1 (BLE HM-10)                        | Transmisión periódica de nivel de contracción al módulo Bluetooth HM-10.             |    11.4      |
+| **Buzzer**             | GPIO                                      | Activación del buzzer cuando el nivel de contracción supera el umbral configurado.   |    13.2      |
+| **Super Loop completo**| ADC + I2C + UART + GPIO                   | Funcionamiento total: adquisición EMG, procesamiento, transmisión BLE y OLED activo. |    14.5      |
+<p align="center"><b>Tabla 1 — Escenarios de medición de consumo.</b></p>
 
 
-| Elemento           | Definición |
-|-------------------|------------|
-| **Disparador**     | El usuario inicia el modo de calibración desde un botón o comando. |
-| **Precondiciones** | Sistema encendido. Electrodos colocados correctamente. |
-| **Flujo principal** | El usuario mantiene el músculo relajado durante unos segundos. El sistema mide el nivel base de ruido y deriva un valor de referencia. Se calcula automáticamente un umbral óptimo de detección. El sistema indica que la calibración fue exitosa. |
-| **Flujos alternativos** | a. Movimiento durante calibración: el sistema solicita repetir el proceso. <br> b. Señal inválida: se muestra error y no se actualiza el umbral. |
+| Tarea                   | Descripción                         | Tiempo de CPU (Ci) | Período (Ti) | Ci/Ti     |
+|-------------------------|--------------------------------------|---------------------|--------------|-----------|
+| **Adquisición EMG (ADC)**     | Muestreo continuo a 1 kHz              | 0.02 ms             | 1 ms         | 0.020     |
+| **Procesamiento EMG**         | Filtrado, RMS y cálculo del nivel      | 0.40 ms             | 20 ms        | 0.020     |
+| **Display OLED (I2C)**        | Refresco de pantalla                   | 1.50 ms             | 100 ms       | 0.015     |
+| **Bluetooth BLE (UART)**      | Envío del valor procesado              | 0.30 ms             | 20 ms        | 0.015     |
+| **Detección de umbral**       | Comparación y activación del buzzer    | 0.05 ms             | 20 ms        | 0.0025    |
+| **Lectura de botón**          | Lectura periódica de entrada digital   | 0.02 ms             | 50 ms        | 0.0004    |
 
-<p align="center"><b>Caso de Uso 3 – Calibración Automática del Umbral</b></p>
+<p align="center"><b>Tabla — Tareas periódicas consideradas para el factor de carga.</b></p>
+
+**Factor de uso total del sistema:**  
+u = 0.020 + 0.020 + 0.015 + 0.015 + 0.0025 + 0.0004 = **0.0729 → 7.29%**
+
+
+
+
+
+
 
 
