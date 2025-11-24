@@ -88,6 +88,8 @@ Implementación tipo **Super Loop (bare-metal, event-triggered)** con tareas per
 **Factor de uso total del sistema:**  
 u = 0.020 + 0.020 + 0.015 + 0.015 + 0.0025 + 0.0004 = **0.0729 → 7.29%**
 
+---
+
 
 
 
