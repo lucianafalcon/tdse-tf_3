@@ -59,6 +59,39 @@ Implementación tipo **Super Loop (bare-metal, event-triggered)** con tareas per
 
 <img width="1243" height="828" alt="embebidos" src="https://github.com/user-attachments/assets/35658773-ff54-48d2-b060-35d2d7419d01" />
 
+---
+
+## Consumo y factor de carga
+
+| Escenario              | Periféricos activos                      | Descripción de la prueba                                                              | Consumo (mA) |
+|------------------------|-------------------------------------------|--------------------------------------------------------------------------------------|--------------|
+| **Baseline**           | Ninguno                                   | Microcontrolador ejecutando loop mínimo, sin periféricos habilitados.                |    12.9      |
+| **ADC activo**         | ADC1                                      | Conversión continua de señal EMG proveniente del AD8232.                             |    14.1      |
+| **I2C activo**         | I2C1 (OLED + EEPROM)                      | Comunicación con OLED y acceso a memoria I2C, refresco de pantalla.                  |    13.4      |
+| **UART activo**        | USART1 (BLE HM-10)                        | Transmisión periódica de nivel de contracción al módulo Bluetooth HM-10.             |    11.4      |
+| **Buzzer**             | GPIO                                      | Activación del buzzer cuando el nivel de contracción supera el umbral configurado.   |    13.2      |
+| **Super Loop completo**| ADC + I2C + UART + GPIO                   | Funcionamiento total: adquisición EMG, procesamiento, transmisión BLE y OLED activo. |    14.5      |
+<p align="center"><b>Tabla 1 — Escenarios de medición de consumo.</b></p>
+
+
+| Tarea                   | Descripción                         | Tiempo de CPU (Ci) | Período (Ti) | Ci/Ti     |
+|-------------------------|--------------------------------------|---------------------|--------------|-----------|
+| **Adquisición EMG (ADC)**     | Muestreo continuo a 1 kHz              | 0.02 ms             | 1 ms         | 0.020     |
+| **Procesamiento EMG**         | Filtrado, RMS y cálculo del nivel      | 0.40 ms             | 20 ms        | 0.020     |
+| **Display OLED (I2C)**        | Refresco de pantalla                   | 1.50 ms             | 100 ms       | 0.015     |
+| **Bluetooth BLE (UART)**      | Envío del valor procesado              | 0.30 ms             | 20 ms        | 0.015     |
+| **Detección de umbral**       | Comparación y activación del buzzer    | 0.05 ms             | 20 ms        | 0.0025    |
+| **Lectura de botón**          | Lectura periódica de entrada digital   | 0.02 ms             | 50 ms        | 0.0004    |
+
+<p align="center"><b>Tabla — Tareas periódicas consideradas para el factor de carga.</b></p>
+
+**Factor de uso total del sistema:**  
+u = 0.020 + 0.020 + 0.015 + 0.015 + 0.0025 + 0.0004 = **0.0729 → 7.29%**
+
+
+
+
+
 
 
 
