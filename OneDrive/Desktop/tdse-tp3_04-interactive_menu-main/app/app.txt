@@ -1,0 +1,13 @@
+  app.c (app.h)
+   Endless loops, which execute tasks with fixed computing time. This 
+   sequential execution is only deviated from when an interrupt event occurs.
+
+...
+
+g_app_runtime_us) = 14
+
+task_dta_list[0].WCET = 52
+
+
+task_dta_list[1].WCET = 6081
+
